@@ -1,83 +1,85 @@
-<!-- ============ NAV ============ -->
-<nav class="navbar" [class.scrolled]="isScrolled">
-  <div class="navbar__inner">
-    <a class="navbar__logo" href="#hero">
-      <span class="navbar__logo-badge">
-        <img src="assets/kapitalcorp-logo-white.png" alt="KapitalCorp International L.L.C. - FZ" />
-      </span>
-    </a>
+<!-- ============ SITE HEADER (NAV + TICKERS) ============ -->
+<div class="site-header" [class.scrolled]="isScrolled">
+  <nav class="navbar">
+    <div class="navbar__inner">
+      <a class="navbar__logo" href="#hero">
+        <span class="navbar__logo-badge">
+          <img src="assets/kapitalcorp-logo-white.png" alt="KapitalCorp International L.L.C. - FZ" />
+        </span>
+      </a>
 
-    <ul class="navbar__links" [class.open]="menuOpen">
-      <li><a href="#hero" (click)="toggleMenu()">Trading</a></li>
-      <li><a href="#about" (click)="toggleMenu()">About</a></li>
-      <li><a href="#companies" (click)="toggleMenu()">Companies</a></li>
-      <li><a href="#cta" (click)="toggleMenu()">Contact</a></li>
-    </ul>
+      <ul class="navbar__links" [class.open]="menuOpen">
+        <li><a href="#hero" (click)="toggleMenu()">Trading</a></li>
+        <li><a href="#about" (click)="toggleMenu()">About</a></li>
+        <li><a href="#companies" (click)="toggleMenu()">Companies</a></li>
+        <li><a href="#cta" (click)="toggleMenu()">Contact</a></li>
+      </ul>
 
-    <button class="navbar__cta" type="button">Contact Us</button>
+      <button class="navbar__cta" type="button">Contact Us</button>
 
-    <button class="navbar__burger" type="button" (click)="toggleMenu()" [class.active]="menuOpen" aria-label="Toggle menu">
-      <span></span><span></span><span></span>
-    </button>
+      <button class="navbar__burger" type="button" (click)="toggleMenu()" [class.active]="menuOpen" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ============ TICKER ============ -->
+  <div class="ticker">
+    @if (ticker$ | async; as items) {
+      <div class="ticker__track">
+        <div class="ticker__group">
+          @for (item of items; track item.symbol) {
+            <span>
+              {{ item.symbol }}
+              <b [class.up]="item.direction === 'up'" [class.down]="item.direction === 'down'">
+                {{ item.direction === 'up' ? '▲' : '▼' }} {{ item.change }}%
+              </b>
+            </span>
+          }
+        </div>
+        <div class="ticker__group" aria-hidden="true">
+          @for (item of items; track item.symbol) {
+            <span>
+              {{ item.symbol }}
+              <b [class.up]="item.direction === 'up'" [class.down]="item.direction === 'down'">
+                {{ item.direction === 'up' ? '▲' : '▼' }} {{ item.change }}%
+              </b>
+            </span>
+          }
+        </div>
+      </div>
+    }
   </div>
-</nav>
 
-<!-- ============ TICKER ============ -->
-<div class="ticker ticker--top">
-  @if (ticker$ | async; as items) {
-    <div class="ticker__track">
-      <div class="ticker__group">
-        @for (item of items; track item.symbol) {
-          <span>
-            {{ item.symbol }}
-            <b [class.up]="item.direction === 'up'" [class.down]="item.direction === 'down'">
-              {{ item.direction === 'up' ? '▲' : '▼' }} {{ item.change }}%
-            </b>
-          </span>
-        }
+  <!-- ============ LKR TICKER ============ -->
+  <div class="ticker ticker--lkr">
+    @if (lkrTicker$ | async; as lkrItems) {
+      <div class="ticker__track ticker__track--reverse">
+        <div class="ticker__group">
+          @for (item of lkrItems; track item.symbol) {
+            <span>
+              {{ item.symbol }}
+              <b class="rate">{{ item.price }}</b>
+              <b [class.up]="item.direction === 'up'" [class.down]="item.direction === 'down'">
+                {{ item.direction === 'up' ? '▲' : '▼' }} {{ item.change }}%
+              </b>
+            </span>
+          }
+        </div>
+        <div class="ticker__group" aria-hidden="true">
+          @for (item of lkrItems; track item.symbol) {
+            <span>
+              {{ item.symbol }}
+              <b class="rate">{{ item.price }}</b>
+              <b [class.up]="item.direction === 'up'" [class.down]="item.direction === 'down'">
+                {{ item.direction === 'up' ? '▲' : '▼' }} {{ item.change }}%
+              </b>
+            </span>
+          }
+        </div>
       </div>
-      <div class="ticker__group" aria-hidden="true">
-        @for (item of items; track item.symbol) {
-          <span>
-            {{ item.symbol }}
-            <b [class.up]="item.direction === 'up'" [class.down]="item.direction === 'down'">
-              {{ item.direction === 'up' ? '▲' : '▼' }} {{ item.change }}%
-            </b>
-          </span>
-        }
-      </div>
-    </div>
-  }
-</div>
-
-<!-- ============ LKR TICKER ============ -->
-<div class="ticker ticker--top ticker--lkr">
-  @if (lkrTicker$ | async; as lkrItems) {
-    <div class="ticker__track ticker__track--reverse">
-      <div class="ticker__group">
-        @for (item of lkrItems; track item.symbol) {
-          <span>
-            {{ item.symbol }}
-            <b class="rate">{{ item.price }}</b>
-            <b [class.up]="item.direction === 'up'" [class.down]="item.direction === 'down'">
-              {{ item.direction === 'up' ? '▲' : '▼' }} {{ item.change }}%
-            </b>
-          </span>
-        }
-      </div>
-      <div class="ticker__group" aria-hidden="true">
-        @for (item of lkrItems; track item.symbol) {
-          <span>
-            {{ item.symbol }}
-            <b class="rate">{{ item.price }}</b>
-            <b [class.up]="item.direction === 'up'" [class.down]="item.direction === 'down'">
-              {{ item.direction === 'up' ? '▲' : '▼' }} {{ item.change }}%
-            </b>
-          </span>
-        }
-      </div>
-    </div>
-  }
+    }
+  </div>
 </div>
 
 <!-- ============ HERO / TRADING ============ -->
