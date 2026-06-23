@@ -22,6 +22,64 @@
   </div>
 </nav>
 
+<!-- ============ TICKER ============ -->
+<div class="ticker ticker--top">
+  @if (ticker$ | async; as items) {
+    <div class="ticker__track">
+      <div class="ticker__group">
+        @for (item of items; track item.symbol) {
+          <span>
+            {{ item.symbol }}
+            <b [class.up]="item.direction === 'up'" [class.down]="item.direction === 'down'">
+              {{ item.direction === 'up' ? '▲' : '▼' }} {{ item.change }}%
+            </b>
+          </span>
+        }
+      </div>
+      <div class="ticker__group" aria-hidden="true">
+        @for (item of items; track item.symbol) {
+          <span>
+            {{ item.symbol }}
+            <b [class.up]="item.direction === 'up'" [class.down]="item.direction === 'down'">
+              {{ item.direction === 'up' ? '▲' : '▼' }} {{ item.change }}%
+            </b>
+          </span>
+        }
+      </div>
+    </div>
+  }
+</div>
+
+<!-- ============ LKR TICKER ============ -->
+<div class="ticker ticker--top ticker--lkr">
+  @if (lkrTicker$ | async; as lkrItems) {
+    <div class="ticker__track ticker__track--reverse">
+      <div class="ticker__group">
+        @for (item of lkrItems; track item.symbol) {
+          <span>
+            {{ item.symbol }}
+            <b class="rate">{{ item.price }}</b>
+            <b [class.up]="item.direction === 'up'" [class.down]="item.direction === 'down'">
+              {{ item.direction === 'up' ? '▲' : '▼' }} {{ item.change }}%
+            </b>
+          </span>
+        }
+      </div>
+      <div class="ticker__group" aria-hidden="true">
+        @for (item of lkrItems; track item.symbol) {
+          <span>
+            {{ item.symbol }}
+            <b class="rate">{{ item.price }}</b>
+            <b [class.up]="item.direction === 'up'" [class.down]="item.direction === 'down'">
+              {{ item.direction === 'up' ? '▲' : '▼' }} {{ item.change }}%
+            </b>
+          </span>
+        }
+      </div>
+    </div>
+  }
+</div>
+
 <!-- ============ HERO / TRADING ============ -->
 <header class="hero" id="hero">
   <div class="hero__grid"></div>
@@ -56,34 +114,6 @@
     </div>
   </div>
 </header>
-
-<!-- ============ TICKER ============ -->
-<div class="ticker">
-  @if (ticker$ | async; as items) {
-    <div class="ticker__track">
-      <div class="ticker__group">
-        @for (item of items; track item.symbol) {
-          <span>
-            {{ item.symbol }}
-            <b [class.up]="item.direction === 'up'" [class.down]="item.direction === 'down'">
-              {{ item.direction === 'up' ? '▲' : '▼' }} {{ item.change }}%
-            </b>
-          </span>
-        }
-      </div>
-      <div class="ticker__group" aria-hidden="true">
-        @for (item of items; track item.symbol) {
-          <span>
-            {{ item.symbol }}
-            <b [class.up]="item.direction === 'up'" [class.down]="item.direction === 'down'">
-              {{ item.direction === 'up' ? '▲' : '▼' }} {{ item.change }}%
-            </b>
-          </span>
-        }
-      </div>
-    </div>
-  }
-</div>
 
 <main>
   <!-- ============ ABOUT ============ -->

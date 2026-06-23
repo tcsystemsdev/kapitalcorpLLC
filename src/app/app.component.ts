@@ -18,6 +18,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   menuOpen = false;
 
   ticker$: Observable<TickerItem[]>;
+  lkrTicker$: Observable<TickerItem[]>;
 
   @ViewChildren('reveal') revealEls!: QueryList<ElementRef<HTMLElement>>;
 
@@ -25,6 +26,7 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
   constructor(private tickerService: TickerService) {
     this.ticker$ = this.tickerService.ticker$;
+    this.lkrTicker$ = this.tickerService.lkrTicker$;
   }
 
   @HostListener('window:scroll')

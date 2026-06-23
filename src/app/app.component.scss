@@ -398,6 +398,10 @@
     width: max-content;
     animation: tickerScroll 28s linear infinite;
     will-change: transform;
+
+    &--reverse {
+      animation: tickerScrollReverse 32s linear infinite;
+    }
   }
 
   &__group {
@@ -417,8 +421,21 @@
 
         &.up { color: #ff5b5b; }
         &.down { color: #6b6b70; }
+        &.rate { color: var(--white); }
       }
     }
+  }
+
+  // LKR variant — no double border between the two tickers
+  &--lkr {
+    border-top: none;
+    padding: 0.65rem 0;
+  }
+
+  // Top-positioned tickers — sit right below the navbar
+  &--top {
+    position: relative;
+    z-index: 90;
   }
 }
 
@@ -681,4 +698,9 @@
 @keyframes tickerScroll {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
+}
+
+@keyframes tickerScrollReverse {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
 }

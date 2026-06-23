@@ -27,19 +27,27 @@ interface ExchangeRateResponse {
 @Injectable({ providedIn: 'root' })
 export class TickerService implements OnDestroy {
 
-  private readonly tickerSubject = new BehaviorSubject<TickerItem[]>(this.defaultItems());
+  // ── Global ticker (crypto + forex) ────────────────────────
+  private readonly tickerSubject = new BehaviorSubject<TickerItem[]>(this.defaultGlobalItems());
   readonly ticker$: Observable<TickerItem[]> = this.tickerSubject.asObservable();
+
+  // ── LKR ticker (Sri Lankan Rupee vs major currencies) ─────
+  private readonly lkrSubject = new BehaviorSubject<TickerItem[]>(this.defaultLkrItems());
+  readonly lkrTicker$: Observable<TickerItem[]> = this.lkrSubject.asObservable();
 
   private cryptoSub?: Subscription;
   private forexSub?: Subscription;
+  private lkrSub?: Subscription;
 
-  // Cached previous forex rates for computing % change
+  // Cached previous rates for computing % change
   private prevForexRates: Record<string, number> | null = null;
+  private prevLkrRates: Record<string, number> | null = null;
 
   // ── API URLs ──────────────────────────────────────────────
   private readonly COINGECKO =
     'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,pax-gold,solana,ripple,binancecoin&vs_currencies=usd&include_24hr_change=true';
-  private readonly EXCHANGE_RATE = 'https://open.er-api.com/v6/latest/USD';
+  private readonly EXCHANGE_RATE_USD = 'https://open.er-api.com/v6/latest/USD';
+  private readonly EXCHANGE_RATE_LKR = 'https://open.er-api.com/v6/latest/LKR';
 
   constructor(private http: HttpClient) {
     this.startPolling();
@@ -50,12 +58,21 @@ export class TickerService implements OnDestroy {
     // Crypto: refresh every 60 seconds
     this.cryptoSub = timer(0, 60_000)
       .pipe(switchMap(() => this.fetchCrypto()))
-      .subscribe(items => this.merge('crypto', items));
+      .subscribe(items => this.mergeGlobal('crypto', items));
 
-    // Forex: refresh every 30 minutes (open API updates once per day)
+    // Forex (USD base): refresh every 30 minutes
     this.forexSub = timer(0, 30 * 60_000)
       .pipe(switchMap(() => this.fetchForex()))
-      .subscribe(items => this.merge('forex', items));
+      .subscribe(items => this.mergeGlobal('forex', items));
+
+    // LKR rates: refresh every 30 minutes
+    this.lkrSub = timer(0, 30 * 60_000)
+      .pipe(switchMap(() => this.fetchLkr()))
+      .subscribe(items => {
+        if (items.length > 0) {
+          this.lkrSubject.next(items);
+        }
+      });
   }
 
   // ── Fetch Crypto (CoinGecko — has 24h % change built-in) ──
@@ -90,9 +107,9 @@ export class TickerService implements OnDestroy {
     );
   }
 
-  // ── Fetch Forex (ExchangeRate-API open access) ────────────
+  // ── Fetch Forex USD base (ExchangeRate-API) ───────────────
   private fetchForex(): Observable<TickerItem[]> {
-    return this.http.get<ExchangeRateResponse>(this.EXCHANGE_RATE).pipe(
+    return this.http.get<ExchangeRateResponse>(this.EXCHANGE_RATE_USD).pipe(
       map(res => {
         if (res.result !== 'success') return [];
 
@@ -108,7 +125,6 @@ export class TickerService implements OnDestroy {
         for (const pair of pairs) {
           const currentRate = res.rates[pair.key];
           if (currentRate != null) {
-            // Compute % change vs previously cached rates
             let pctChange = 0;
             if (this.prevForexRates && this.prevForexRates[pair.key]) {
               const prev = this.prevForexRates[pair.key];
@@ -123,7 +139,6 @@ export class TickerService implements OnDestroy {
           }
         }
 
-        // Store current as "previous" for next poll
         this.prevForexRates = { ...res.rates };
         return items;
       }),
@@ -131,11 +146,68 @@ export class TickerService implements OnDestroy {
     );
   }
 
-  // ── Merge partial updates into the full list ──────────────
+  // ── Fetch LKR rates (ExchangeRate-API, LKR base) ─────────
+  private fetchLkr(): Observable<TickerItem[]> {
+    return this.http.get<ExchangeRateResponse>(this.EXCHANGE_RATE_LKR).pipe(
+      map(res => {
+        if (res.result !== 'success') return [];
+
+        const items: TickerItem[] = [];
+        // Pairs: show "how many LKR per 1 unit of foreign currency"
+        const pairs: { key: string; label: string }[] = [
+          { key: 'USD', label: 'USD/LKR' },
+          { key: 'EUR', label: 'EUR/LKR' },
+          { key: 'GBP', label: 'GBP/LKR' },
+          { key: 'AED', label: 'AED/LKR' },
+          { key: 'INR', label: 'INR/LKR' },
+          { key: 'JPY', label: 'JPY/LKR' },
+          { key: 'AUD', label: 'AUD/LKR' },
+          { key: 'SGD', label: 'SGD/LKR' },
+          { key: 'CNY', label: 'CNY/LKR' },
+        ];
+
+        for (const pair of pairs) {
+          const lkrToForeign = res.rates[pair.key];
+          if (lkrToForeign != null && lkrToForeign !== 0) {
+            // Invert: LKR→foreign rate to get "1 foreign = X LKR"
+            const foreignToLkr = +(1 / lkrToForeign).toFixed(2);
+
+            let pctChange = 0;
+            if (this.prevLkrRates && this.prevLkrRates[pair.key]) {
+              const prev = this.prevLkrRates[pair.key];
+              pctChange = ((foreignToLkr - prev) / prev) * 100;
+            }
+
+            items.push({
+              symbol: pair.label,
+              change: Math.abs(+pctChange.toFixed(2)),
+              price: foreignToLkr,
+              direction: pctChange >= 0 ? 'up' : 'down',
+            });
+          }
+        }
+
+        // Store inverted rates for next comparison
+        const invertedRates: Record<string, number> = {};
+        for (const pair of pairs) {
+          const rate = res.rates[pair.key];
+          if (rate != null && rate !== 0) {
+            invertedRates[pair.key] = +(1 / rate).toFixed(2);
+          }
+        }
+        this.prevLkrRates = invertedRates;
+
+        return items;
+      }),
+      catchError(() => of([] as TickerItem[])),
+    );
+  }
+
+  // ── Merge global ticker updates ───────────────────────────
   private cryptoItems: TickerItem[] = [];
   private forexItems: TickerItem[] = [];
 
-  private merge(source: 'crypto' | 'forex', items: TickerItem[]): void {
+  private mergeGlobal(source: 'crypto' | 'forex', items: TickerItem[]): void {
     if (source === 'crypto' && items.length) this.cryptoItems = items;
     if (source === 'forex' && items.length) this.forexItems = items;
 
@@ -145,8 +217,8 @@ export class TickerService implements OnDestroy {
     }
   }
 
-  // ── Defaults (shown until first API response) ─────────────
-  private defaultItems(): TickerItem[] {
+  // ── Default items ─────────────────────────────────────────
+  private defaultGlobalItems(): TickerItem[] {
     return [
       { symbol: 'BTC/USD', change: 0, direction: 'up' },
       { symbol: 'ETH/USD', change: 0, direction: 'up' },
@@ -162,8 +234,23 @@ export class TickerService implements OnDestroy {
     ];
   }
 
+  private defaultLkrItems(): TickerItem[] {
+    return [
+      { symbol: 'USD/LKR', change: 0, price: 334.07, direction: 'up' },
+      { symbol: 'EUR/LKR', change: 0, price: 382.26, direction: 'up' },
+      { symbol: 'GBP/LKR', change: 0, price: 443.21, direction: 'up' },
+      { symbol: 'AED/LKR', change: 0, price: 90.97, direction: 'up' },
+      { symbol: 'INR/LKR', change: 0, price: 3.53, direction: 'up' },
+      { symbol: 'JPY/LKR', change: 0, price: 2.07, direction: 'up' },
+      { symbol: 'AUD/LKR', change: 0, price: 233.88, direction: 'up' },
+      { symbol: 'SGD/LKR', change: 0, price: 258.11, direction: 'up' },
+      { symbol: 'CNY/LKR', change: 0, price: 49.25, direction: 'up' },
+    ];
+  }
+
   ngOnDestroy(): void {
     this.cryptoSub?.unsubscribe();
     this.forexSub?.unsubscribe();
+    this.lkrSub?.unsubscribe();
   }
 }
