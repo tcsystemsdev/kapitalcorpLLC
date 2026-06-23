@@ -1,10 +1,13 @@
 import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, ViewChildren, QueryList } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { AsyncPipe } from '@angular/common';
+import { TickerService, TickerItem } from './ticker.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, AsyncPipe],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
@@ -14,9 +17,15 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   isScrolled = false;
   menuOpen = false;
 
+  ticker$: Observable<TickerItem[]>;
+
   @ViewChildren('reveal') revealEls!: QueryList<ElementRef<HTMLElement>>;
 
   private observer?: IntersectionObserver;
+
+  constructor(private tickerService: TickerService) {
+    this.ticker$ = this.tickerService.ticker$;
+  }
 
   @HostListener('window:scroll')
   onScroll(): void {
@@ -46,3 +55,4 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     this.menuOpen = !this.menuOpen;
   }
 }
+

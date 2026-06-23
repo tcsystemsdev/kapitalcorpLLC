@@ -396,13 +396,15 @@
   &__track {
     display: flex;
     width: max-content;
-    animation: tickerScroll 22s linear infinite;
+    animation: tickerScroll 28s linear infinite;
+    will-change: transform;
   }
 
   &__group {
     display: flex;
     gap: 3rem;
     padding-right: 3rem;
+    flex-shrink: 0;
 
     span {
       font-size: 0.9rem;

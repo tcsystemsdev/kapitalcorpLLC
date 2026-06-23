@@ -59,18 +59,30 @@
 
 <!-- ============ TICKER ============ -->
 <div class="ticker">
-  <div class="ticker__track">
-    @for (i of [0,1]; track i) {
+  @if (ticker$ | async; as items) {
+    <div class="ticker__track">
       <div class="ticker__group">
-        <span>BTC/USD <b class="up">▲ 2.41%</b></span>
-        <span>ETH/USD <b class="down">▼ 1.08%</b></span>
-        <span>NASDAQ <b class="up">▲ 0.92%</b></span>
-        <span>GOLD <b class="down">▼ 0.34%</b></span>
-        <span>USD/EUR <b class="up">▲ 0.12%</b></span>
-        <span>S&amp;P 500 <b class="up">▲ 0.58%</b></span>
+        @for (item of items; track item.symbol) {
+          <span>
+            {{ item.symbol }}
+            <b [class.up]="item.direction === 'up'" [class.down]="item.direction === 'down'">
+              {{ item.direction === 'up' ? '▲' : '▼' }} {{ item.change }}%
+            </b>
+          </span>
+        }
       </div>
-    }
-  </div>
+      <div class="ticker__group" aria-hidden="true">
+        @for (item of items; track item.symbol) {
+          <span>
+            {{ item.symbol }}
+            <b [class.up]="item.direction === 'up'" [class.down]="item.direction === 'down'">
+              {{ item.direction === 'up' ? '▲' : '▼' }} {{ item.change }}%
+            </b>
+          </span>
+        }
+      </div>
+    </div>
+  }
 </div>
 
 <main>
