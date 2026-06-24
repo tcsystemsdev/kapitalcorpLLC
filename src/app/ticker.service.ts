@@ -28,11 +28,11 @@ interface ExchangeRateResponse {
 export class TickerService implements OnDestroy {
 
   // ── Global ticker (crypto + forex) ────────────────────────
-  private readonly tickerSubject = new BehaviorSubject<TickerItem[]>(this.defaultGlobalItems());
+  private readonly tickerSubject = new BehaviorSubject<TickerItem[]>([]);
   readonly ticker$: Observable<TickerItem[]> = this.tickerSubject.asObservable();
 
   // ── LKR ticker (Sri Lankan Rupee vs major currencies) ─────
-  private readonly lkrSubject = new BehaviorSubject<TickerItem[]>(this.defaultLkrItems());
+  private readonly lkrSubject = new BehaviorSubject<TickerItem[]>([]);
   readonly lkrTicker$: Observable<TickerItem[]> = this.lkrSubject.asObservable();
 
   private cryptoSub?: Subscription;
@@ -215,37 +215,6 @@ export class TickerService implements OnDestroy {
     if (merged.length > 0) {
       this.tickerSubject.next(merged);
     }
-  }
-
-  // ── Default items ─────────────────────────────────────────
-  private defaultGlobalItems(): TickerItem[] {
-    return [
-      { symbol: 'BTC/USD', change: 0, direction: 'up' },
-      { symbol: 'ETH/USD', change: 0, direction: 'up' },
-      { symbol: 'GOLD', change: 0, direction: 'up' },
-      { symbol: 'SOL/USD', change: 0, direction: 'up' },
-      { symbol: 'XRP/USD', change: 0, direction: 'up' },
-      { symbol: 'BNB/USD', change: 0, direction: 'up' },
-      { symbol: 'USD/EUR', change: 0, direction: 'up' },
-      { symbol: 'USD/GBP', change: 0, direction: 'up' },
-      { symbol: 'USD/JPY', change: 0, direction: 'up' },
-      { symbol: 'USD/AED', change: 0, direction: 'up' },
-      { symbol: 'USD/CHF', change: 0, direction: 'up' },
-    ];
-  }
-
-  private defaultLkrItems(): TickerItem[] {
-    return [
-      { symbol: 'USD/LKR', change: 0, price: 334.07, direction: 'up' },
-      { symbol: 'EUR/LKR', change: 0, price: 382.26, direction: 'up' },
-      { symbol: 'GBP/LKR', change: 0, price: 443.21, direction: 'up' },
-      { symbol: 'AED/LKR', change: 0, price: 90.97, direction: 'up' },
-      { symbol: 'INR/LKR', change: 0, price: 3.53, direction: 'up' },
-      { symbol: 'JPY/LKR', change: 0, price: 2.07, direction: 'up' },
-      { symbol: 'AUD/LKR', change: 0, price: 233.88, direction: 'up' },
-      { symbol: 'SGD/LKR', change: 0, price: 258.11, direction: 'up' },
-      { symbol: 'CNY/LKR', change: 0, price: 49.25, direction: 'up' },
-    ];
   }
 
   ngOnDestroy(): void {
