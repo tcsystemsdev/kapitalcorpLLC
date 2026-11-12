@@ -17,6 +17,10 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   isScrolled = false;
   menuOpen = false;
 
+  // TODO: replace with the real KapitalCorp contact address
+  readonly contactEmail = 'info@kapitalcorp.com';
+  contactOpen = false;
+
   // `dark: true` = logo has light artwork and needs a dark tile
   companyLogos = [
     { name: 'Medcube', src: 'assets/logos/medcube-light.png', dark: false, zoom: false },
@@ -83,6 +87,30 @@ export class AppComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.observer?.disconnect();
+  }
+
+  openContact(): void {
+    this.contactOpen = true;
+    this.menuOpen = false;
+    document.body.style.overflow = 'hidden';
+  }
+
+  @HostListener('document:keydown.escape')
+  closeContact(): void {
+    this.contactOpen = false;
+    document.body.style.overflow = '';
+  }
+
+  submitContact(event: Event, name: string, email: string, message: string): void {
+    event.preventDefault();
+    const subject = `Website enquiry from ${name}`;
+    const body = `Name: ${name}
+Email: ${email}
+
+${message}`;
+    window.location.href =
+      `mailto:${this.contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    this.closeContact();
   }
 
   toggleMenu(): void {

@@ -15,7 +15,7 @@
         <li><a href="#cta" (click)="toggleMenu()">Contact</a></li>
       </ul>
 
-      <button class="navbar__cta" type="button">Contact Us</button>
+      <button class="navbar__cta" type="button" (click)="openContact()">Contact Us</button>
 
       <button class="navbar__burger" type="button" (click)="toggleMenu()" [class.active]="menuOpen" aria-label="Toggle menu">
         <span></span><span></span><span></span>
@@ -198,7 +198,7 @@
   <section class="cta" id="cta" #reveal>
     <h2>Partner with KapitalCorp</h2>
     <p>Get in touch to explore trading opportunities with our team.</p>
-    <button class="btn btn--primary btn--lg" type="button">Get in Touch</button>
+    <button class="btn btn--primary btn--lg" type="button" (click)="openContact()">Get in Touch</button>
   </section>
 </main>
 
@@ -221,5 +221,29 @@
     <p>&copy; 2026 KapitalCorp LLC. All rights reserved.</p>
   </div>
 </footer>
+
+<!-- ============ CONTACT MODAL ============ -->
+@if (contactOpen) {
+  <div class="modal" (click)="closeContact()">
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="contact-title" (click)="$event.stopPropagation()">
+      <button class="modal__close" type="button" (click)="closeContact()" aria-label="Close">&times;</button>
+      <h2 id="contact-title">Get in Touch</h2>
+      <p class="modal__lead">Tell us about your trading needs and our team will get back to you.</p>
+      <form (submit)="submitContact($event, name.value, email.value, message.value)">
+        <label>Name
+          <input #name type="text" name="name" required autocomplete="name" />
+        </label>
+        <label>Email
+          <input #email type="email" name="email" required autocomplete="email" />
+        </label>
+        <label>Message
+          <textarea #message name="message" rows="5" required></textarea>
+        </label>
+        <button class="btn btn--primary" type="submit">Send Message</button>
+        <p class="modal__note">This opens your email app with the message ready to send to {{ contactEmail }}.</p>
+      </form>
+    </div>
+  </div>
+}
 
 <router-outlet />
