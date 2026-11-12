@@ -17,6 +17,35 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   isScrolled = false;
   menuOpen = false;
 
+  // `dark: true` = logo has light artwork and needs a dark tile
+  companyLogos = [
+    { name: 'Medcube', src: 'assets/logos/medcube-light.png', dark: false, zoom: false },
+    { name: 'Thinkcube', src: 'assets/logos/thinkcube-light.png', dark: false, zoom: false },
+    { name: 'EF Johnson', src: 'assets/logos/efj.png', dark: false, zoom: false },
+    { name: 'Hörmann Automotive', src: 'assets/logos/hoermann.jpg', dark: false, zoom: false },
+    { name: 'Axiata Digital Labs', src: 'assets/logos/axiata.png', dark: false, zoom: false },
+    { name: 'Mimosa', src: 'assets/logos/logo-1.jpg', dark: false, zoom: false },
+    { name: 'Amrita Technologies', src: 'assets/logos/amrita-trim.png', dark: false, zoom: false }
+  ];
+
+  recommendations = [
+    {
+      quote: 'KapitalCorp delivered quality products on time and handled every step of the import process with professionalism.',
+      name: 'Name pending',
+      role: 'Position, Company'
+    },
+    {
+      quote: 'A dependable trading partner with strong local expertise. They made entering a new market simple for us.',
+      name: 'Name pending',
+      role: 'Position, Company'
+    },
+    {
+      quote: 'Transparent, responsive and reliable. We value the long-term relationship we have built with the KapitalCorp team.',
+      name: 'Name pending',
+      role: 'Position, Company'
+    }
+  ];
+
   ticker$: Observable<TickerItem[]>;
   lkrTicker$: Observable<TickerItem[]>;
 

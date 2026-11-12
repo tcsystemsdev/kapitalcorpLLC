@@ -168,13 +168,24 @@
       </p>
     </div>
 
+    <div class="logo-carousel" aria-label="Our companies">
+      <div class="logo-carousel__track">
+        @for (round of [0, 1]; track round) {
+          @for (l of companyLogos; track l.name) {
+            <div class="logo-tile" [class.logo-tile--dark]="l.dark" [class.logo-tile--zoom]="l.zoom" [attr.aria-hidden]="round === 1">
+              <img [src]="l.src" [alt]="round === 0 ? l.name : ''" loading="lazy" />
+            </div>
+          }
+        }
+      </div>
+    </div>
+
     <div class="companies__grid">
-      @for (c of [1, 2, 3]; track c) {
-        <div class="company-card" #reveal [style.transition-delay.ms]="c * 90">
-          <div class="company-card__mark">K</div>
-          <h3>Company name pending</h3>
-          <p>Details for this company will be added here.</p>
-        </div>
+      @for (r of recommendations; track $index) {
+        <figure class="company-card" #reveal [style.transition-delay.ms]="($index + 1) * 90">
+          <blockquote>&ldquo;{{ r.quote }}&rdquo;</blockquote>
+          <figcaption><strong>{{ r.name }}</strong><span>{{ r.role }}</span></figcaption>
+        </figure>
       }
     </div>
   </section>
