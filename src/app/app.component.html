@@ -184,7 +184,11 @@
       @for (r of recommendations; track $index) {
         <figure class="company-card" #reveal [style.transition-delay.ms]="($index + 1) * 90">
           <blockquote>&ldquo;{{ r.quote }}&rdquo;</blockquote>
-          <figcaption><strong>{{ r.name }}</strong><span>{{ r.role }}</span></figcaption>
+          <figcaption>
+            <strong>{{ r.name }}</strong>
+            <span class="role">{{ r.role }}</span>
+            <span class="company">{{ r.company }}</span>
+          </figcaption>
         </figure>
       }
     </div>

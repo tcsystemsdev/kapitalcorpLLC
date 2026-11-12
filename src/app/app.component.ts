@@ -31,18 +31,21 @@ export class AppComponent implements AfterViewInit, OnDestroy {
   recommendations = [
     {
       quote: 'KapitalCorp delivered quality products on time and handled every step of the import process with professionalism.',
-      name: 'Name pending',
-      role: 'Position, Company'
+      name: 'Dan Troutman',
+      role: 'CTO',
+      company: 'EFJohnson'
     },
     {
       quote: 'A dependable trading partner with strong local expertise. They made entering a new market simple for us.',
-      name: 'Name pending',
-      role: 'Position, Company'
+      name: 'Kerstin Schreiber',
+      role: 'Member of the Management Board',
+      company: 'Hörmann Gruppe'
     },
     {
       quote: 'Transparent, responsive and reliable. We value the long-term relationship we have built with the KapitalCorp team.',
-      name: 'Name pending',
-      role: 'Position, Company'
+      name: 'Ramesh Raghavan',
+      role: 'CTO',
+      company: 'Amrita Technologies'
     }
   ];
 
