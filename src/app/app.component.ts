@@ -32,6 +32,9 @@ export class AppComponent implements AfterViewInit, OnDestroy {
     { name: 'Amrita Technologies', src: 'assets/logos/amrita-trim.png', dark: false, zoom: false }
   ];
 
+  // Set to true to show the client recommendation cards again
+  showRecommendations = false;
+
   recommendations = [
     {
       quote: 'KapitalCorp delivered quality products on time and handled every step of the import process with professionalism.',
